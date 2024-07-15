@@ -23,12 +23,12 @@ const App = () => {
 
     Object.entries(persons).forEach(([k,v]) => {
       if (v.name === newName) {
-        alert("Already done")
+        alert(`${newName} is already added to phonebook`)
         truth = false
         console.log("Here 1", truth)
       }
     })
-    
+
     if (truth === true) {
       setPersons(persons.concat(nameObject))
       setNewName('')
