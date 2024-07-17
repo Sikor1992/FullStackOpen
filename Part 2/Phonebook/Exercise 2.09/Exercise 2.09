@@ -53,11 +53,12 @@ const App = () => {
 
   const handleFilterChange = (event) => {
     setNewFiltered(event.target.value)
-    if (newFiltered !== '') {
-      setShowAll(false)
-    } else {
-      setShowAll(true)
-    }
+    const newFiltered = event.target.value
+      if (newFiltered !== '') {
+        setShowAll(false)
+      } else {
+        setShowAll(true)
+      }
   }
 
   const personsToShow = showAll
