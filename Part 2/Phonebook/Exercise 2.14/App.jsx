@@ -1,0 +1,104 @@
+import { useState, useEffect } from 'react'
+import Persons from './components/Persons'
+import Filter from './components/Filter'
+import PersonForm from './components/PersonForm'
+import personService from './services/persons'
+
+const App = () => {
+  const [persons, setPersons] = useState([])
+  const [newName, setNewName] = useState('')
+  const [newNumber, setNewNumber] = useState('')
+  const [newFiltered, setNewFiltered] = useState('')
+  const [showAll, setShowAll] = useState(true)
+
+  useEffect(() => {
+    personService
+      .getAll()
+      .then(initialPersons => {
+        setPersons(initialPersons)
+      })
+  }, [])
+
+  const addName = (event) => {
+    event.preventDefault()
+    
+    const nameObject = {
+      name: newName,
+      number: newNumber
+    }
+
+    let truth = true
+
+    Object.entries(persons).forEach(([k,v]) => {
+      if (v.name === newName) {
+        alert(`${newName} is already added to phonebook`)
+        truth = false
+        setNewName('')
+        setNewNumber('')
+      }
+    })
+
+    if (truth === true) {
+      personService
+      .create(nameObject)
+      .then(returnedPerson => {
+        setPersons(persons.concat(returnedPerson))
+        setNewName('')
+        setNewNumber('')
+      })
+    } 
+  }
+
+  const handleNameChange = (event) => {
+    setNewName(event.target.value)
+  }
+
+  const handleNumberChange = (event) => {
+    setNewNumber(event.target.value)
+  }
+
+  const handleFilterChange = (event) => {
+    setNewFiltered(event.target.value)
+    const newFiltered = event.target.value
+      if (newFiltered !== '') {
+        setShowAll(false)
+      } else {
+        setShowAll(true)
+      }
+  }
+
+  const handleIdChange = (event) => {
+    if (window.confirm("Delete " + event.target.name + "?")) {
+      personService
+        .deleteObject(event.target.id)
+        .then(
+          setPersons(persons.filter(person => person.id !== event.target.id))     
+        )
+    }
+  }
+
+  const personsToShow = showAll
+    ? persons
+    : persons.filter(person => person.name.toLowerCase().includes(newFiltered.toLowerCase()))
+      
+  return (
+    <div>
+      <h2>Phonebook</h2>
+      <Filter value={newFiltered} onChange={handleFilterChange} />
+      <h2>Add a new</h2>
+      <PersonForm 
+                  onSubmit={addName}
+                  valueOne={newName}
+                  onChangeOne={handleNameChange}
+                  valueTwo={newNumber}
+                  onChangeTwo={handleNumberChange}
+      />
+      <h2>Numbers</h2>
+        {personsToShow.map(person =>
+          <Persons key={person.id} person={person} onClick={handleIdChange}/> 
+        )}
+    </div>
+  )
+}
+
+export default App
